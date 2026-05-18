@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Digit Recognizer</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workbench" aria-labelledby="app-title">
+        <div class="panel draw-panel">
+          <header class="topbar">
+            <div>
+              <h1 id="app-title">Digit Recognizer</h1>
+              <p>Draw a single digit and watch the model respond.</p>
+            </div>
+            <a class="docs-link" href="/docs">API Docs</a>
+          </header>
+
+          <div class="canvas-wrap">
+            <canvas id="draw-canvas" width="336" height="336" aria-label="Digit drawing canvas"></canvas>
+          </div>
+
+          <div class="toolbar" aria-label="Drawing controls">
+            <button id="clear-button" type="button">Clear</button>
+          </div>
+        </div>
+
+        <aside class="panel result-panel" aria-label="Prediction result">
+          <div class="prediction-block">
+            <span class="label">Prediction</span>
+            <strong id="prediction-value">-</strong>
+          </div>
+
+          <div class="confidence-block">
+            <div class="confidence-row">
+              <span class="label">Confidence</span>
+              <span id="confidence-value">0%</span>
+            </div>
+            <div class="meter" aria-hidden="true">
+              <div id="confidence-meter"></div>
+            </div>
+          </div>
+
+          <div class="top-list-block">
+            <span class="label">Top 5</span>
+            <div id="top-predictions" class="top-predictions" aria-live="polite">
+              <div class="top-row is-empty">No prediction yet</div>
+            </div>
+          </div>
+
+          <div class="preview-block">
+            <div class="preview-header">
+              <span class="label">28x28 Input</span>
+              <span id="status-text">Ready</span>
+            </div>
+            <canvas id="preview-canvas" width="28" height="28" aria-label="28 by 28 model input preview"></canvas>
+          </div>
+
+          <p id="error-text" role="status" aria-live="polite"></p>
+        </aside>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

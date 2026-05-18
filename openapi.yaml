@@ -1,0 +1,110 @@
+openapi: 3.0.3
+info:
+  title: Handwritten Digit Recognizer API
+  version: 1.0.0
+  description: >
+    API for predicting the digit shown in a 28x28 pixel handwritten digit
+    image. Clients upload a single image file and receive the model's predicted
+    digit with confidence.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+security: []
+paths:
+  /predict:
+    post:
+      summary: Predict a handwritten digit
+      description: >
+        Accepts a 28x28 pixel image file containing a single handwritten digit
+        and returns the predicted digit with the model's confidence score.
+      operationId: predictDigit
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PredictRequest'
+      responses:
+        '200':
+          description: Digit prediction completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictResponse'
+        '400':
+          description: The uploaded file is missing, empty, or not a valid image format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: The server failed while processing the image or running model inference.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    PredictRequest:
+      type: object
+      description: Request payload for predicting a handwritten digit.
+      required:
+        - image
+      properties:
+        image:
+          type: string
+          format: binary
+          description: Binary image file containing a single 28x28 pixel handwritten digit.
+    PredictResponse:
+      type: object
+      description: Prediction result returned by the digit recognizer model.
+      required:
+        - prediction
+        - confidence
+        - top_predictions
+      properties:
+        prediction:
+          type: integer
+          minimum: 0
+          maximum: 9
+          description: Predicted digit class.
+        confidence:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Model confidence for the predicted class.
+        top_predictions:
+          type: array
+          minItems: 5
+          maxItems: 5
+          description: Top five digit classes ordered from highest confidence to lowest.
+          items:
+            $ref: '#/components/schemas/TopPrediction'
+    TopPrediction:
+      type: object
+      description: Confidence score for a ranked digit class.
+      required:
+        - digit
+        - confidence
+      properties:
+        digit:
+          type: integer
+          minimum: 0
+          maximum: 9
+          description: Predicted digit class.
+        confidence:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Model confidence for this digit class.
+    ErrorResponse:
+      type: object
+      description: Standard JSON error response.
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Human-readable error message.
