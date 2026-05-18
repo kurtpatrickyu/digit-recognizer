@@ -62,6 +62,7 @@ components:
         - prediction
         - confidence
         - top_predictions
+        - visualization
       properties:
         prediction:
           type: integer
@@ -81,6 +82,114 @@ components:
           description: Top five digit classes ordered from highest confidence to lowest.
           items:
             $ref: '#/components/schemas/TopPrediction'
+        visualization:
+          $ref: '#/components/schemas/NetworkVisualization'
+    NetworkVisualization:
+      type: object
+      description: Bounded graph metadata for rendering model weights and activation lighting.
+      required:
+        - layers
+        - nodes
+        - connections
+        - note
+      properties:
+        layers:
+          type: array
+          items:
+            $ref: '#/components/schemas/VisualizationLayer'
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/VisualizationNode'
+        connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/VisualizationConnection'
+        note:
+          type: string
+          description: Clarifies sampled and aggregated display values.
+    VisualizationLayer:
+      type: object
+      required:
+        - id
+        - label
+        - kind
+        - detail
+        - activation
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        kind:
+          type: string
+        detail:
+          type: string
+        activation:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+    VisualizationNode:
+      type: object
+      required:
+        - id
+        - layer
+        - label
+        - kind
+        - activation
+      properties:
+        id:
+          type: string
+        layer:
+          type: string
+        label:
+          type: string
+        kind:
+          type: string
+        activation:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+        confidence:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          nullable: true
+        source_index:
+          type: integer
+          nullable: true
+    VisualizationConnection:
+      type: object
+      required:
+        - id
+        - source
+        - target
+        - weight
+        - weight_label
+        - weight_kind
+        - intensity
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+        target:
+          type: string
+        weight:
+          type: number
+          format: float
+        weight_label:
+          type: string
+        weight_kind:
+          type: string
+        intensity:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
     TopPrediction:
       type: object
       description: Confidence score for a ranked digit class.

@@ -36,7 +36,13 @@ predictions from the `/predict` API, including the top five confidence scores.
 The API documentation remains available at `http://127.0.0.1:8000/docs`.
 
 The drawing UI predicts automatically after you pause drawing. The 28x28 preview
-shows the light-on-dark image sent to the model, matching MNIST-style input.
+defaults to dark digit pixels on a white background and includes an invert toggle
+for light pixels on black. The image sent to `/predict` matches the displayed
+preview polarity. The page also has tabs for prediction details and a responsive
+`SimpleCNN` graph with visible sampled nodes, checkpoint-derived sampled or
+aggregated weights, and activation lighting after each successful prediction.
+Weight labels are intentionally bounded so the UI shows real model values
+without dumping every raw checkpoint parameter.
 
 ## Training Diagnostics
 
