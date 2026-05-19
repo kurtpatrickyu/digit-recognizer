@@ -1,0 +1,123 @@
+{
+  "digit-recognizer-v10": {
+    "epochs": 3
+  },
+  "digit-recognizer-v11": {
+    "epochs": 1
+  },
+  "digit-recognizer-v12": {
+    "epochs": 2
+  },
+  "digit-recognizer-v13": {
+    "epochs": 3
+  },
+  "digit-recognizer-v14": {
+    "epochs": 4
+  },
+  "digit-recognizer-v15": {
+    "epochs": 1
+  },
+  "digit-recognizer-v16": {
+    "epochs": 2
+  },
+  "digit-recognizer-v17": {
+    "epochs": 1
+  },
+  "digit-recognizer-v18": {
+    "epochs": 2
+  },
+  "digit-recognizer-v19": {
+    "epochs": 3
+  },
+  "digit-recognizer-v20": {
+    "epochs": 4
+  },
+  "digit-recognizer-v21": {
+    "epochs": 5
+  },
+  "digit-recognizer-v22": {
+    "epochs": 6
+  },
+  "digit-recognizer-v23": {
+    "epochs": 7
+  },
+  "digit-recognizer-v24": {
+    "epochs": 8
+  },
+  "digit-recognizer-v25": {
+    "epochs": 1
+  },
+  "digit-recognizer-v26": {
+    "epochs": 2
+  },
+  "digit-recognizer-v27": {
+    "best_accuracy": 0.9897,
+    "epochs": 5,
+    "test_accuracy": 0.9897,
+    "test_loss": 0.04588963747024536,
+    "train_loss": 0.04924928291489681
+  },
+  "digit-recognizer-v28": {
+    "best_accuracy": 0.9893,
+    "epochs": 6,
+    "test_accuracy": 0.9893,
+    "test_loss": 0.047739851570129395,
+    "train_loss": 0.04410810422085536
+  },
+  "digit-recognizer-v29": {
+    "best_accuracy": 0.9898,
+    "epochs": 7,
+    "test_accuracy": 0.9898,
+    "test_loss": 0.05328886904716492,
+    "train_loss": 0.04025437229673068
+  },
+  "digit-recognizer-v3": {
+    "epochs": 1
+  },
+  "digit-recognizer-v30": {
+    "best_accuracy": 0.9907,
+    "epochs": 8,
+    "test_accuracy": 0.9907,
+    "test_loss": 0.05661965681910515,
+    "train_loss": 0.036163490948717424
+  },
+  "digit-recognizer-v31": {
+    "best_accuracy": 0.9896,
+    "epochs": 12,
+    "test_accuracy": 0.9895,
+    "test_loss": 0.03746364235877991,
+    "train_loss": 0.11721133624811968
+  },
+  "digit-recognizer-v32": {
+    "best_accuracy": 0.9902,
+    "epochs": 16,
+    "test_accuracy": 0.9902,
+    "test_loss": 0.03476526889801025,
+    "train_loss": 0.11715655460059643
+  },
+  "digit-recognizer-v33": {
+    "best_accuracy": 0.984,
+    "epochs": 4,
+    "test_accuracy": 0.984,
+    "test_loss": 0.0521465085029602,
+    "train_loss": 0.1844237918217977
+  },
+  "digit-recognizer-v4": {
+    "epochs": 2
+  },
+  "digit-recognizer-v5": {
+    "epochs": 1
+  },
+  "digit-recognizer-v6": {
+    "epochs": 3
+  },
+  "digit-recognizer-v7": {
+    "epochs": 4
+  },
+  "digit-recognizer-v8": {
+    "epochs": 1
+  },
+  "digit-recognizer-v9": {
+    "epochs": 2
+  }
+}

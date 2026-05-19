@@ -37,6 +37,84 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /models:
+    get:
+      summary: List available model versions
+      description: Returns the untrained `none` option, versioned checkpoints in the model directory, and the active prediction model.
+      operationId: listModels
+      responses:
+        '200':
+          description: Model list loaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelListResponse'
+  /models/active:
+    post:
+      summary: Select active prediction model
+      description: Loads `none` or a versioned checkpoint as the active model for subsequent predictions.
+      operationId: selectModel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SelectModelRequest'
+      responses:
+        '200':
+          description: Active model selected.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelectModelResponse'
+        '404':
+          description: Requested model was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /train:
+    post:
+      summary: Start model training
+      description: Starts one background MNIST training job from a selected model and saves a new versioned checkpoint.
+      operationId: startTraining
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingRequest'
+      responses:
+        '200':
+          description: Training job started.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingStatusResponse'
+        '409':
+          description: Training is already running.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Selected training model was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /train/status:
+    get:
+      summary: Get training status
+      description: Returns the current background training job state and latest metrics.
+      operationId: getTrainingStatus
+      responses:
+        '200':
+          description: Training status loaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingStatusResponse'
         '500':
           description: The server failed while processing the image or running model inference.
           content:
@@ -61,6 +139,7 @@ components:
       required:
         - prediction
         - confidence
+        - model_name
         - top_predictions
         - visualization
       properties:
@@ -75,6 +154,9 @@ components:
           minimum: 0.0
           maximum: 1.0
           description: Model confidence for the predicted class.
+        model_name:
+          type: string
+          description: Versioned model used for inference.
         top_predictions:
           type: array
           minItems: 5
@@ -217,3 +299,290 @@ components:
         message:
           type: string
           description: Human-readable error message.
+    ModelMetadata:
+      type: object
+      required:
+        - name
+        - filename
+        - active
+        - epochs
+        - is_base
+      properties:
+        name:
+          type: string
+          example: digit-recognizer-v1
+        filename:
+          type: string
+          example: digit-recognizer-v1.pth
+        version:
+          type: integer
+          minimum: 1
+          nullable: true
+        active:
+          type: boolean
+        epochs:
+          type: integer
+          minimum: 0
+        train_loss:
+          type: number
+          format: float
+          nullable: true
+        test_loss:
+          type: number
+          format: float
+          nullable: true
+        test_accuracy:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          nullable: true
+        best_accuracy:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          nullable: true
+        is_base:
+          type: boolean
+    ModelListResponse:
+      type: object
+      required:
+        - models
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelMetadata'
+        active_model:
+          type: string
+          nullable: true
+    SelectModelRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: none
+    SelectModelResponse:
+      type: object
+      required:
+        - active_model
+        - models
+      properties:
+        active_model:
+          type: string
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelMetadata'
+    TrainingRequest:
+      type: object
+      properties:
+        epochs:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 1
+          description: Number of epochs to train.
+        model_name:
+          type: string
+          nullable: true
+          description: Model name to continue training from. Defaults to the active model.
+    TrainingStatusResponse:
+      type: object
+      required:
+        - status
+        - message
+        - history
+      properties:
+        status:
+          type: string
+          enum: [idle, running, complete, error]
+        message:
+          type: string
+        epoch:
+          type: integer
+          nullable: true
+        epochs:
+          type: integer
+          nullable: true
+        batch:
+          type: integer
+          nullable: true
+        total_batches:
+          type: integer
+          nullable: true
+        images_trained:
+          type: integer
+          nullable: true
+          description: Number of training images processed in the current one-epoch run.
+        total_training_images:
+          type: integer
+          nullable: true
+          description: Total number of training images in the current one-epoch run.
+        batch_loss:
+          type: number
+          format: float
+          nullable: true
+        train_loss:
+          type: number
+          format: float
+          nullable: true
+        test_loss:
+          type: number
+          format: float
+          nullable: true
+        test_accuracy:
+          type: number
+          format: float
+          nullable: true
+        best_accuracy:
+          type: number
+          format: float
+          nullable: true
+        saved_model:
+          type: string
+          nullable: true
+        source_model:
+          type: string
+          nullable: true
+        source_model_epochs:
+          type: integer
+          minimum: 0
+        total_epochs:
+          type: integer
+          minimum: 0
+        batch_image:
+          type: object
+          nullable: true
+          description: Lowest-confidence representative image selected from the current batch after the optimizer step.
+          properties:
+            width:
+              type: integer
+            height:
+              type: integer
+            pixels:
+              type: array
+              items:
+                type: integer
+                minimum: 0
+                maximum: 255
+            label:
+              type: integer
+              minimum: 0
+              maximum: 9
+            prediction:
+              type: integer
+              minimum: 0
+              maximum: 9
+              description: Model prediction for this representative image after the batch update.
+            confidence:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              description: Prediction confidence for the representative image after the batch update.
+            is_correct:
+              type: boolean
+              description: Whether the representative prediction matches the sample label.
+        training_prediction:
+          type: object
+          nullable: true
+          properties:
+            prediction:
+              type: integer
+              minimum: 0
+              maximum: 9
+            confidence:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+            is_correct:
+              type: boolean
+        training_visualization:
+          type: object
+          nullable: true
+          description: Prediction-style sampled training graph with current weights, deltas, activations, and confidences.
+          properties:
+            layers:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  label:
+                    type: string
+                  kind:
+                    type: string
+                  detail:
+                    type: string
+                  activation:
+                    type: number
+                    format: float
+            nodes:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  layer:
+                    type: string
+                  label:
+                    type: string
+                  kind:
+                    type: string
+                  activation:
+                    type: number
+                    format: float
+                  confidence:
+                    type: number
+                    format: float
+                    nullable: true
+                  source_index:
+                    type: integer
+            connections:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  source:
+                    type: string
+                  target:
+                    type: string
+                  weight:
+                    type: number
+                    format: float
+                  weight_label:
+                    type: string
+                  weight_kind:
+                    type: string
+                  previous_weight:
+                    type: number
+                    format: float
+                  delta:
+                    type: number
+                    format: float
+                  delta_label:
+                    type: string
+                  adjustment:
+                    type: number
+                    format: float
+                  direction:
+                    type: string
+                    enum: [up, down]
+                  intensity:
+                    type: number
+                    format: float
+            note:
+              type: string
+        history:
+          type: array
+          items:
+            type: object

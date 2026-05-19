@@ -8,101 +8,176 @@
   </head>
   <body>
     <main class="app-shell">
-      <section class="workbench" aria-labelledby="app-title">
-        <div class="panel draw-panel">
-          <header class="topbar">
-            <div>
-              <h1 id="app-title">Digit Recognizer</h1>
-              <p>Draw a single digit and watch the model respond.</p>
-            </div>
-            <a class="docs-link" href="/docs">API Docs</a>
-          </header>
+      <div class="workflow-tabs" role="tablist" aria-label="Digit recognizer workflows">
+        <button id="predict-workflow-tab" class="tab-button is-active" type="button" role="tab" aria-selected="true" aria-controls="predict-workflow-panel">Predict</button>
+        <button id="train-workflow-tab" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="train-workflow-panel">Train</button>
+      </div>
 
-          <div class="canvas-wrap">
-            <canvas id="draw-canvas" width="336" height="336" aria-label="Digit drawing canvas"></canvas>
+      <section id="predict-workflow-panel" class="workflow-panel is-active" role="tabpanel" aria-labelledby="predict-workflow-tab">
+        <section class="workbench" aria-labelledby="app-title">
+          <div class="panel draw-panel">
+            <header class="topbar">
+              <div>
+                <h1 id="app-title">Digit Recognizer</h1>
+                <p>Draw a single digit and watch the selected model respond.</p>
+              </div>
+              <a class="docs-link" href="/docs">API Docs</a>
+            </header>
+
+            <div class="model-picker">
+              <label class="label" for="model-select">Model</label>
+              <select id="model-select" aria-label="Prediction model"></select>
+              <span id="model-status" role="status" aria-live="polite"></span>
+            </div>
+
+            <div class="canvas-wrap">
+              <canvas id="draw-canvas" width="336" height="336" aria-label="Digit drawing canvas"></canvas>
+            </div>
+
+            <div class="toolbar" aria-label="Drawing controls">
+              <button id="clear-button" type="button">Clear</button>
+            </div>
           </div>
 
-          <div class="toolbar" aria-label="Drawing controls">
-            <button id="clear-button" type="button">Clear</button>
+          <aside class="panel insight-panel" aria-label="Prediction and visualization">
+            <div class="tabs result-tabs" role="tablist" aria-label="Result views">
+              <button id="prediction-tab" class="tab-button result-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="prediction-panel">Prediction</button>
+              <button id="visualization-tab" class="tab-button result-tab" type="button" role="tab" aria-selected="false" aria-controls="visualization-panel">Visualization</button>
+            </div>
+
+            <section id="prediction-panel" class="tab-panel prediction-panel is-active" role="tabpanel" aria-labelledby="prediction-tab">
+              <div class="prediction-block">
+                <span class="label">Prediction</span>
+                <strong id="prediction-value">-</strong>
+              </div>
+
+              <div class="confidence-block">
+                <div class="confidence-row">
+                  <span class="label">Confidence</span>
+                  <span id="confidence-value">0%</span>
+                </div>
+                <div class="meter" aria-hidden="true">
+                  <div id="confidence-meter"></div>
+                </div>
+              </div>
+
+              <div class="top-list-block">
+                <span class="label">Top 5</span>
+                <div id="top-predictions" class="top-predictions" aria-live="polite">
+                  <div class="top-row is-empty">No prediction yet</div>
+                </div>
+              </div>
+
+              <div class="preview-block">
+                <div class="preview-header">
+                  <span class="label">28x28 Input</span>
+                  <span id="status-text">Ready</span>
+                </div>
+                <div class="preview-controls">
+                  <label class="toggle-control" for="invert-preview-toggle">
+                    <input id="invert-preview-toggle" type="checkbox">
+                    <span>Invert</span>
+                  </label>
+                </div>
+                <canvas id="preview-canvas" width="28" height="28" aria-label="28 by 28 model input preview"></canvas>
+              </div>
+
+              <p id="error-text" role="status" aria-live="polite"></p>
+            </section>
+
+            <section id="visualization-panel" class="tab-panel visualization-panel" role="tabpanel" aria-labelledby="visualization-tab" hidden>
+              <div class="network-header">
+                <div>
+                  <span class="label">Live Network</span>
+                  <h2 id="network-title">SimpleCNN Graph</h2>
+                </div>
+                <span id="network-status" aria-live="polite">Awaiting digit</span>
+              </div>
+
+              <div class="network-viewport">
+                <svg
+                  id="network-graph"
+                  viewBox="0 0 860 420"
+                  role="img"
+                  aria-labelledby="network-title network-description"
+                  preserveAspectRatio="xMidYMid meet"
+                ></svg>
+                <p id="network-description" class="sr-only">
+                  Neural network graph with sampled model weights and activation lighting.
+                </p>
+              </div>
+
+              <div class="network-legend" aria-label="Visualization legend">
+                <span><b class="legend-dot is-active"></b> activation</span>
+                <span><b class="legend-line"></b> real sampled weight</span>
+                <span><b class="legend-line is-selected"></b> selected path</span>
+                <span id="network-note">Weights appear after prediction.</span>
+              </div>
+            </section>
+          </aside>
+        </section>
+      </section>
+
+      <section id="train-workflow-panel" class="workflow-panel" role="tabpanel" aria-labelledby="train-workflow-tab" hidden>
+        <section class="train-workbench">
+          <div class="panel train-control-panel">
+            <header class="topbar">
+              <div>
+                <h1>Train Model</h1>
+                <p>Create a new versioned checkpoint from MNIST training.</p>
+              </div>
+              <a class="docs-link" href="/docs">API Docs</a>
+            </header>
+
+            <div class="training-settings" aria-label="Training settings">
+              <label class="field-control" for="training-model-select">
+                <span class="label">Training Model</span>
+                <select id="training-model-select" aria-label="Training source model"></select>
+              </label>
+              <label class="field-control" for="training-epochs-input">
+                <span class="label">Epochs</span>
+                <input id="training-epochs-input" type="number" min="1" max="100" step="1" value="1" inputmode="numeric">
+              </label>
+            </div>
+
+            <div class="train-actions">
+              <button id="start-training-button" type="button">Start Training</button>
+              <span id="training-status-text" aria-live="polite">Idle</span>
+            </div>
+
+            <div class="training-metrics" aria-label="Training metrics">
+              <div><span class="label">Epoch Progress</span><strong id="training-epoch">-</strong></div>
+              <div><span class="label">Batch Loss</span><strong id="training-batch-loss">-</strong></div>
+              <div><span class="label">Train Loss</span><strong id="training-train-loss">-</strong></div>
+              <div><span class="label">Test Loss</span><strong id="training-test-loss">-</strong></div>
+              <div><span class="label">Test Accuracy</span><strong id="training-test-accuracy">-</strong></div>
+              <div><span class="label">Best Accuracy</span><strong id="training-best-accuracy">-</strong></div>
+              <div><span class="label">Total Epochs</span><strong id="training-total-epochs">0</strong></div>
+            </div>
+
+            <p id="training-source-model">Source: none</p>
+            <p id="training-message" role="status" aria-live="polite">No training job has started.</p>
           </div>
-        </div>
 
-        <aside class="panel insight-panel" aria-label="Prediction and visualization">
-          <div class="tabs" role="tablist" aria-label="Result views">
-            <button id="prediction-tab" class="tab-button is-active" type="button" role="tab" aria-selected="true" aria-controls="prediction-panel">Prediction</button>
-            <button id="visualization-tab" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="visualization-panel">Visualization</button>
-          </div>
-
-          <section id="prediction-panel" class="tab-panel prediction-panel is-active" role="tabpanel" aria-labelledby="prediction-tab">
-            <div class="prediction-block">
-              <span class="label">Prediction</span>
-              <strong id="prediction-value">-</strong>
-            </div>
-
-            <div class="confidence-block">
-              <div class="confidence-row">
-                <span class="label">Confidence</span>
-                <span id="confidence-value">0%</span>
-              </div>
-              <div class="meter" aria-hidden="true">
-                <div id="confidence-meter"></div>
-              </div>
-            </div>
-
-            <div class="top-list-block">
-              <span class="label">Top 5</span>
-              <div id="top-predictions" class="top-predictions" aria-live="polite">
-                <div class="top-row is-empty">No prediction yet</div>
-              </div>
-            </div>
-
-            <div class="preview-block">
-              <div class="preview-header">
-                <span class="label">28x28 Input</span>
-                <span id="status-text">Ready</span>
-              </div>
-              <div class="preview-controls">
-                <label class="toggle-control" for="invert-preview-toggle">
-                  <input id="invert-preview-toggle" type="checkbox">
-                  <span>Invert</span>
-                </label>
-              </div>
-              <canvas id="preview-canvas" width="28" height="28" aria-label="28 by 28 model input preview"></canvas>
-            </div>
-
-            <p id="error-text" role="status" aria-live="polite"></p>
-          </section>
-
-          <section id="visualization-panel" class="tab-panel visualization-panel" role="tabpanel" aria-labelledby="visualization-tab" hidden>
+          <aside class="panel train-visual-panel" aria-label="Training visualization">
             <div class="network-header">
               <div>
-                <span class="label">Live Network</span>
-                <h2 id="network-title">SimpleCNN Graph</h2>
+                <span class="label">Training Visualization</span>
+                <h2 id="training-title">SimpleCNN Training</h2>
               </div>
-              <span id="network-status" aria-live="polite">Awaiting digit</span>
+              <span id="training-saved-model">No checkpoint yet</span>
             </div>
 
-            <div class="network-viewport">
-              <svg
-                id="network-graph"
-                viewBox="0 0 860 420"
-                role="img"
-                aria-labelledby="network-title network-description"
-                preserveAspectRatio="xMidYMid meet"
-              ></svg>
-              <p id="network-description" class="sr-only">
-                Neural network graph with sampled model weights and activation lighting.
-              </p>
+            <div class="training-visualization">
+              <div class="training-sample">
+                <span class="label">Batch Image</span>
+                <canvas id="training-image-canvas" width="28" height="28" aria-label="Latest training batch image"></canvas>
+                <span id="training-image-label">-</span>
+              </div>
+              <svg id="training-graph" viewBox="0 0 860 420" role="img" aria-labelledby="training-title" preserveAspectRatio="xMidYMid meet"></svg>
             </div>
-
-            <div class="network-legend" aria-label="Visualization legend">
-              <span><b class="legend-dot is-active"></b> activation</span>
-              <span><b class="legend-line"></b> real sampled weight</span>
-              <span><b class="legend-line is-selected"></b> selected path</span>
-              <span id="network-note">Weights appear after prediction.</span>
-            </div>
-          </section>
-        </aside>
+          </aside>
+        </section>
       </section>
     </main>
 
